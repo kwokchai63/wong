@@ -1,0 +1,231 @@
+<!--
+  Copyright (c) 2011 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  use this file except in compliance with the License. You may obtain a copy of
+  the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  License for the specific language governing permissions and limitations under
+  the License.
+
+  To run this sample, replace YOUR API KEY with your application's API key.
+  It can be found at https://code.google.com/apis/console/?api=plus under API Access.
+  Activate the Google+ service at https://code.google.com/apis/console/ under Services
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <!--Add a button for the user to click to initiate auth sequence -->
+	<a href="https://sites.google.com/site/kwokchai63/">輸入</a>
+	<a href="https://docs.google.com/spreadsheet/lv?authkey=CP-M7KQK&authkey=CP-M7KQK&key=0At5j6i3KwwKedEMwTGNfMDRQNmFieWlUY3JjZnhqM0E&rm=full&f=0#gid=0">資料庫</a>
+	<a href="https://dl.dropboxusercontent.com/u/2573148/a.html">國際搜尋</a>
+	
+
+	<script>
+		var access_token;
+
+		function disconnectUser() {
+		var revokeUrl = 'https://accounts.google.com/o/oauth2/revoke?token=' +	access_token;
+		
+
+  // Perform an asynchronous GET request.
+		  $.ajax({
+			type: 'GET',
+			url: revokeUrl,
+			async: false,
+			contentType: "application/json",
+			dataType: 'jsonp',
+			success: function(nullResponse) {
+			  // Do something now that user is disconnected
+				alert("已取消授權");
+			  // Start account clean up
+			},
+			error: function(e) {
+			  // Handle the error
+			  // console.log(e);
+			  // You could point users to manually disconnect if unsuccessful
+			  // https://plus.google.com/apps
+			}
+		  });
+	}
+</script>
+	
+	
+	
+    <button id="authorize-button" style="visibility: hidden">登入</button>
+	
+    <script type="text/javascript">
+		//FOR LOGIN
+		
+      // Enter a client ID for a web application from the Google Developer Console.
+      // The provided clientId will only work if the sample is run directly from
+      // https://google-api-javascript-client.googlecode.com/hg/samples/authSample.html
+      // In your Developer Console project, add a JavaScript origin that corresponds to the domain
+      // where you will be running the script.
+      var clientId = '824400555188-elont2g5e0no8fabrqno8knsa2rq543p.apps.googleusercontent.com';
+
+      // Enter the API key from the Google Develoepr Console - to handle any unauthenticated
+      // requests in the code.
+      // The provided key works for this sample only when run from
+      // https://google-api-javascript-client.googlecode.com/hg/samples/authSample.html
+      // To use in your own application, replace this API key with your own.
+      var apiKey = 'AIzaSyDdlIAHLw0sA8WCV3YcOyN_LWXdmhPguuU';
+
+      // To enter one or more authentication scopes, refer to the documentation for the API.
+      var scopes = 'https://www.googleapis.com/auth/plus.me';
+
+      // Use a button to handle authentication the first time.
+      function handleClientLoad() {
+        gapi.client.setApiKey(apiKey);
+        window.setTimeout(checkAuth,1);
+      }
+
+      function checkAuth() {
+        gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: true}, handleAuthResult);
+      }
+
+
+      function handleAuthResult(authResult) {
+        var authorizeButton = document.getElementById('authorize-button');
+		var revokeButton = document.getElementById('revokeButton');
+        if (authResult && !authResult.error) {
+          authorizeButton.style.visibility = 'hidden';
+		  authorizeButton.style.visibility = '';
+		  access_token = authResult['access_token'];
+          makeApiCall();
+		  authSearch();
+        } else {
+          authorizeButton.style.visibility = '';
+		  authorizeButton.style.visibility = 'hidden';
+		  document.getElementById('statusDiv').innerHTML = "請先登入";
+          authorizeButton.onclick = handleAuthClick;
+        }
+      }
+      function handleAuthClick(event) {
+        gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
+        return false;
+      }
+
+      // Load the API and make an API call.  Display the results on the screen.
+      function makeApiCall() {
+        gapi.client.load('plus', 'v1', function() {
+          var request = gapi.client.plus.people.get({
+            'userId': 'me'
+          });
+          request.execute(function(resp) {
+            var heading = document.createElement('h4');
+            var image = document.createElement('img');
+            image.src = resp.image.url;
+			heading.appendChild(document.createTextNode("已登入為:   "));
+            heading.appendChild(image);
+            heading.appendChild(document.createTextNode(resp.displayName));
+			document.getElementById('content').innerHTML = "";
+            document.getElementById('content').appendChild(heading);
+          });
+        });
+      }
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+    <div id="content"><p>未登入</p></div>
+
+
+	<script type="text/javascript">
+//FOR SEARCHING
+var table;
+
+
+function authSearch(){
+	if(access_token === undefined || access_token == "" ){
+	  document.getElementById('statusDiv').innerHTML = "請先登入";	
+	} else {
+		//alert(access_token);
+		drawVisualization();
+	}
+}
+
+function drawVisualization() {
+document.getElementById('searchDiv').innerHTML = "顯示:"+tname.value +" "+ tphone.value +" "+ taddr.value +" "+ tprod.value;
+document.getElementById('statusDiv').innerHTML = "請等候";
+document.getElementById('statusDiv').innerHTML = "";
+var query = new google.visualization.Query(
+'http://spreadsheets.google.com/tq?key=0At5j6i3KwwKedEMwTGNfMDRQNmFieWlUY3JjZnhqM0E&hl=en_GB');
+var queryTEXT = 'SELECT C,D,E,F,G,H,I,J,K,L,M where E like "%' + tname.value +'%" and F like "%' + tphone.value +'%" and G like "%' + taddr.value +'%" and I like "%' + tprod.value + '%" order by C asc'
+
+query.setQuery(queryTEXT);
+query.send(handleQueryResponse);
+
+}
+
+function handleQueryResponse(response) {
+if (response.isError()) {
+document.getElementById('statusDiv').innerHTML = "登入未授權"+response.getMessage() + ' ' + response.getDetailedMessage();
+return;
+}
+
+var data = response.getDataTable();
+
+table = new google.visualization.Table(document.getElementById('tableDiv'));
+table.draw(data, {'showRowNumber': true},{legend: 'bottom'});
+document.getElementById('statusDiv').innerHTML = "搜尋完成";
+}
+
+</script>
+<script>
+
+function loadVisualization(){
+	google.load('visualization', '1', {packages: ['table'], "callback":authSearch});
+}
+function initLoader() {
+  var script = document.createElement("script");
+  script.src = "https://www.google.com/jsapi?callback=loadVisualization";
+  script.type = "text/javascript";
+  document.getElementsByTagName("head")[0].appendChild(script);
+}
+window.onload=function(){
+	initLoader();
+};
+</script>
+	
+	
+<div id="mainDiv">
+<form id="searchFrm" onsubmit="authSearch();return false;">
+	姓名/公司:<input id="tname" type="text"/>
+	電話:<input id="tphone" type="text" /><br />
+	地址:<input id="taddr" type="text" />
+	貨品:<input id="tprod" type="text" /><br />
+	<input id="submit" value="搜尋" type="submit"/><br />
+</form>
+<div id="searchDiv">search初始化</div>
+<div id="statusDiv">狀態: 初始化</div>
+<div id="tableDiv">_____</div>
+</div>
+<div id="footer">
+	<button id="revokeButton" onclick="disconnectUser()" style="visibility: hidden">重新授權</button>
+</div>
+
+
+    <!-- Place this asynchronous JavaScript just before your </body> tag -->
+    <script type="text/javascript">
+      (function() {
+       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+       po.src = 'https://apis.google.com/js/client:plusone.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+     })();
+    </script>
+	
+	
+  </body>
+  
+  
+  
+  
+</html>
